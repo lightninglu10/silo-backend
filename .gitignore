@@ -83,6 +83,9 @@ venv/
 ENV/
 .silo/
 
+# Webpack-stats
+webpack-stats.json
+
 # Spyder project settings
 .spyderproject
 

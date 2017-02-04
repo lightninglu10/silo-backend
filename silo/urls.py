@@ -18,6 +18,8 @@ from django.contrib import admin
 
 from rest_framework.routers import SimpleRouter
 
+# Views
+from silo import views as index_view
 from messagesapp import views as messages_views
 
 ROUTER = SimpleRouter()
@@ -35,4 +37,9 @@ urlpatterns = [
     url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
     # url(r'^rest-auth/facebook/$', FacebookLogin.as_view(), name='fb_login')
+]
+
+urlpatterns += [
+    # Do NOT return 200 for missing API calls.
+    url(r'^(?!api/)', index_view.index, name="index"),
 ]
