@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Django extensions
+    'django_extensions',
+
     # Django-rest-framework
     'rest_framework',
     'rest_framework.authtoken',
@@ -53,6 +56,10 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.twitter',
+
+    # Silo apps
+    'messagesapp',
+    'contacts',
 ]
 
 MIDDLEWARE = [
@@ -90,6 +97,13 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
+
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+    # `allauth` specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend"
+)
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
@@ -148,3 +162,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Site ID
+SITE_ID = 1

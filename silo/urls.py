@@ -13,9 +13,26 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
+
+from rest_framework.routers import SimpleRouter
+
+from messagesapp import views as messages_views
+
+ROUTER = SimpleRouter()
+
+# Messages
+ROUTER.register(
+    r'messages',
+    messages_views.MessagesView,
+    base_name='messages'
+)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^api/', include(ROUTER.urls, namespace='api')),
+    url(r'^rest-auth/', include('rest_auth.urls')),
+    url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
+    # url(r'^rest-auth/facebook/$', FacebookLogin.as_view(), name='fb_login')
 ]
