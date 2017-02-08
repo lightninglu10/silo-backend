@@ -4,7 +4,21 @@ from django.contrib.auth.models import User
 class ContactBook(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contactBook')
 
+class UserProfile(models.Model):
+    """
+    Profile for the registered user account. Person who sends out messages.
+    """
+    first_name = models.TextField(default='')
+    last_name = models.TextField(default='')
+    number = models.CharField(max_length=17, primary_key=True, unique=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+
 class Contact(models.Model):
+    """
+    Model for the contacts in the contact book
+    """
     number = models.CharField(max_length=17, primary_key=True, unique=True)
     first_name = models.TextField(default='', blank=True, null=True)
     last_name = models.TextField(default='', blank=True, null=True)

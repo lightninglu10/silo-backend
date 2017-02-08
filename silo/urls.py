@@ -21,6 +21,7 @@ from rest_framework.routers import SimpleRouter
 # Views
 from silo import views as index_view
 from messagesapp import views as messages_views
+from contacts import views as contacts_views
 
 ROUTER = SimpleRouter()
 
@@ -30,16 +31,27 @@ ROUTER.register(
     messages_views.MessagesView,
     base_name='messages'
 )
+ROUTER.register(
+    r'receive/messages',
+    messages_views.ReceiveMessagesView,
+    base_name='receive_messages')
+
+# User
+ROUTER.register(
+    r'user',
+    contacts_views.GetUserInfoView,
+    base_name="user_info")
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^api/auth/', include('rest_auth.urls')),
+    url(r'^api/auth/registration/', include('rest_auth.registration.urls')),
     url(r'^api/', include(ROUTER.urls, namespace='api')),
-    url(r'^rest-auth/', include('rest_auth.urls')),
-    url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
     # url(r'^rest-auth/facebook/$', FacebookLogin.as_view(), name='fb_login')
 ]
 
 urlpatterns += [
     # Do NOT return 200 for missing API calls.
     url(r'^(?!api/)', index_view.index, name="index"),
+    # url(r'^accounts/', include('allauth.urls')),
 ]

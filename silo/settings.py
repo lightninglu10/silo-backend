@@ -25,7 +25,7 @@ SECRET_KEY = 'lb6a$b2(%3a*ddryv68b1ijq1sa(uctc)99yt2wq@u7!&q_f_c'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['e88496a4.ngrok.io', 'localhost']
 
 
 # Application definition
@@ -81,7 +81,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': False,
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -93,6 +93,20 @@ TEMPLATES = [
     },
 ]
 
+##### djangorestframework
+INCLUDE_SESSION_AUTHENTICATION = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'PAGE_SIZE': 100
+}
+
 WSGI_APPLICATION = 'silo.wsgi.application'
 
 # Django AllAuth Setup
@@ -100,6 +114,12 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_SIGNUP_FORM_CLASS = 'contacts.forms.SignupForm'
+ACCOUNT_EMAIL_VERIFICATION = False
+
+# TODO: get a proper email backend so we can send authentication emails
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
