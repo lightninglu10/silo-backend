@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django import forms
+from django.contrib.postgres.forms import SimpleArrayField
+from django.views.decorators.csrf import csrf_exempt
 
 # Models
 from .models import Message
@@ -19,35 +21,69 @@ from twilio.exceptions import TwilioRestException
 # Serializers
 from .serializers import UserListSerializer, MessagesSerializer
 
+# Channels for websockets
+from channels import Group
+
+import json
+from operator import itemgetter
+
 account_sid = "AC416bdd1fded5fa067f76ecd4381632d5"
 auth_token = "f15d3e7ae578b4ec75a15b5fa41e1b0f"
 SILO_MESSAGING_ID = 'MGb015f9b8cea6900c64af4b2d5f7fb6bc'
+USA_NUMBER_LENGTH = 10
 
 client = Client(account_sid, auth_token)
 
 class MessageForm(forms.Form):
     body = forms.CharField(max_length=1600, strip=True, required=False)
     media_url = forms.CharField(strip=True, required=False)
-    number = forms.CharField(max_length=17, strip=True, required=True)
+    numbers = SimpleArrayField(forms.CharField(strip=True), required=True)
     contact_book = forms.IntegerField()
 
 class ReceiveMessageForm(forms.Form):
-    Body = forms.CharField(max_length=1600, strip=True, required=True)
-    SmsSid = forms.CharField(max_length=1600, strip=True, required=True)
-    ToCountry = forms.CharField(max_length=1600, strip=True, required=True)
-    ToCity = forms.CharField(max_length=1600, strip=True, required=True)
-    NumSegments = forms.CharField(max_length=1600, strip=True, required=True)
-    MessagingServiceSid = forms.CharField(max_length=1600, strip=True, required=True)
-    NumMedia = forms.CharField(max_length=1600, strip=True, required=True)
-    From = forms.CharField(max_length=1600, strip=True, required=True)
-    FromZip = forms.CharField(max_length=1600, strip=True, required=True)
-    ToState = forms.CharField(max_length=1600, strip=True, required=True)
-    To = forms.CharField(max_length=1600, strip=True, required=True)
+    Body = forms.CharField(strip=True, required=False)
+    SmsSid = forms.CharField(strip=True, required=False)
+    ToCountry = forms.CharField(strip=True, required=False)
+    ToCity = forms.CharField(strip=True, required=False)
+    NumSegments = forms.CharField(strip=True, required=False)
+    MessagingServiceSid = forms.CharField(strip=True, required=False)
+    NumMedia = forms.CharField(strip=True, required=False)
+    From = forms.CharField(strip=True, required=False)
+    FromZip = forms.CharField(strip=True, required=False)
+    ToState = forms.CharField(strip=True, required=False)
+    To = forms.CharField(strip=True, required=False)
+    MessageStatus = forms.CharField(required=False)
+    SmsStatus = forms.CharField(required=False)
+    MessageSid = forms.CharField(required=False)
+
+class MessagesViewStatus(viewsets.GenericViewSet):
+    """
+    View to check the status of messages: sent, failed, undelivered?
+    """
+
+    permission_classes = ()
+
+    def create(self, request):
+        """
+        Callback for delivery status of a message
+        """
+        form = ReceiveMessageForm(request.data)
+
+        if form.is_valid():
+            try:
+                message = Message.objects.get(twilio_sid=form.cleaned_data['MessageSid'])
+            except Message.DoesNotExist:
+                return Response({'error': 'The message does not exist', 'status': 400}, status=400)
+
+        message.status(form.cleaned_data['MessageStatus'])
+        return Response({'success': 'Message status kept', 'status': 200}, status=200)
 
 class ReceiveMessagesView(viewsets.GenericViewSet):
     """
     View to receive messages via twilio
     """
+
+    permission_classes = ()
 
     def create(self, request):
         """
@@ -74,7 +110,7 @@ class ReceiveMessagesView(viewsets.GenericViewSet):
                     contactBook=user.contactBook.all()[0]
                 )
 
-            Message.objects.create(
+            new_message = Message.objects.create(
                 body=form.cleaned_data['Body'],
                 to=contact,
                 media_url='',
@@ -82,6 +118,10 @@ class ReceiveMessagesView(viewsets.GenericViewSet):
                 twilio_sid=form.cleaned_data['SmsSid'],
                 me=False
             )
+
+            new_message_serialized = MessagesSerializer(new_message)
+
+            Group('messages').send({'text': json.dumps(new_message_serialized.data)})
 
             return Response({'success': 'Message received'})
 
@@ -110,39 +150,60 @@ class MessagesView(viewsets.GenericViewSet):
             else:
                 user = User.objects.get(username='patricklu')
 
-            try:
-                contact = Contact.objects.get(number=form.cleaned_data['number'],
-                    contactBook=user.contactBook.all()[form.cleaned_data['contact_book']])
-            except Contact.DoesNotExist:
-                contact = Contact.objects.create(number=form.cleaned_data['number'],
-                    contactBook=user.contactBook.all()[form.cleaned_data['contact_book']])
+            contacts = []
+            twilio_responses = []
+            # TODO: Finish doing multi numbers
+            for number in form.cleaned_data['numbers']:
+                true_number = number
+                if len(number) == USA_NUMBER_LENGTH:
+                    true_number = "+1" + number
+                try:
+                    contact = Contact.objects.get(number=true_number,
+                        contactBook=user.contactBook.all()[form.cleaned_data['contact_book']])
+                except Contact.DoesNotExist:
 
-            if form.cleaned_data['media_url']:
-                try:
-                    response = client.messages.create(
-                                    to=form.cleaned_data['number'],
-                                    messaging_service_sid=SILO_MESSAGING_ID,
-                                    body=form.cleaned_data['body'],
-                                    media_url=form.cleaned_data['media_url'])
-                # TODO: get the exceptions done properly
-                except e:
-                    return Response({'error': 'error'})
-            else:
-                try:
-                    response = client.messages.create(
-                                    to=form.cleaned_data['number'],
-                                    messaging_service_sid=SILO_MESSAGING_ID,
-                                    body=form.cleaned_data['body'])
-                # TODO: get the exceptions done properly
-                except TwilioRestException as e:
-                    return Response({'error': 'error', 'status': 400}, status=400)
+                    contact = Contact.objects.create(number=true_number,
+                        contactBook=user.contactBook.all()[form.cleaned_data['contact_book']])
+
+                contacts.append(contact)
+
+                if form.cleaned_data['media_url']:
+                    try:
+                        response = client.messages.create(
+                            to=number,
+                            messaging_service_sid=SILO_MESSAGING_ID,
+                            body=form.cleaned_data['body'],
+                            media_url=form.cleaned_data['media_url'])
+                    # TODO: get the exceptions done properly
+                    except e:
+                        return Response({'error': 'error'})
+                else:
+                    try:
+                        # TODO: make the status callback an environment variable
+                        response = client.messages.create(
+                                        to=number,
+                                        status_callback='http://4a1e3c48.ngrok.io/api/status/messages/',
+                                        messaging_service_sid=SILO_MESSAGING_ID,
+                                        body=form.cleaned_data['body'])
+                    # TODO: get the exceptions done properly
+                    except TwilioRestException as e:
+                        return Response({'error': 'error', 'status': 400}, status=400)
+
+                twilio_responses.append(response)
             
-            Message.objects.create(to=contact,
-                sender=user,
-                body=form.cleaned_data['body'],
-                media_url=form.cleaned_data['media_url'],
-                twilio_sid=response.sid)
-            return Response({'success': 'Phone number sent!', 'status': 200})
+                # TODO: get response.sid correct
+                new_message = Message.objects.create(
+                    to=contact,
+                    sender=user,
+                    body=form.cleaned_data['body'],
+                    media_url=form.cleaned_data['media_url'],
+                    twilio_sid=response.sid,
+                    status='Q'
+                )
+
+            new_message_serialized = MessagesSerializer(new_message)
+
+            return Response({'success': 'Phone number sent!', 'message': new_message_serialized.data, 'status': 200})
         else:
             return Response({'error': form.errors.as_json(), 'status': 400}, status=400)
 
@@ -159,31 +220,46 @@ class MessagesView(viewsets.GenericViewSet):
 
         contact_book = user.contactBook.all().first()
         userList = []
+        seen_messages = {}
         for contact in contact_book.contacts.all():
             messages = contact.messages.all()
-            if len(messages) > 0:
-                userList.append(messages.last())
+            group_messages = contact.group_messages.all()
+            last_message = messages.last()
+            last_group_message = group_messages.last()
+            if len(messages) > 0 and last_message not in seen_messages:
+                userList.append(last_message)
+                seen_messages[last_message] = True
 
-        userListData = UserListSerializer(userList, many=True).data
-        return Response({'userList': userListData})
+            if len(group_messages) > 0:
+                userList.append(last_group_message)
+        userList.sort(key=lambda item:item.time_sent, reverse=True)
+        userList_serialized = UserListSerializer(userList, many=True)
+        return Response({'userList': userList_serialized.data})
 
     def retrieve(self, request, pk):
         """
         Grabs the list of specific messages
         """
 
-        # TODO: only get a range of messages, not all
+        # TODO: only get a range of messages (message 1-10), and then load them as we go higher, not all
 
         user = User.objects.get(username='patricklu')
         contact_book = user.contactBook.all().first()
+        numbers = pk.split(',')
+        contacts = []
+        for number in numbers:
+            try:
+                contact = contact_book.contacts.get(number=number)
+                contacts.append(contact)
+            except Contact.DoesNotExist:
+                return Response({'error': 'Contact does not exist', 'status': 400})
 
-        try:
-            contact = contact_book.contacts.get(number=pk)
-        except Contact.DoesNotExist:
-            return Response({'error': 'Contact does not exist', 'status': 400})
+        filtered = Message.objects.filter(to=contacts[0])
+        for contact in contacts[1:]:
+            filtered = filtered.filter(to=contact)
 
-        messages = contact.messages.all()
-        serialized_messages = MessagesSerializer(messages, many=True)
+        # messages = contact.messages.all().order_by('time_sent')
+        serialized_messages = MessagesSerializer(filtered.order_by('time_sent'), many=True)
         return Response({'messages': serialized_messages.data})
 
 

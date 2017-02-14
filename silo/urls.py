@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 
 from rest_framework.routers import SimpleRouter
 
@@ -36,11 +38,24 @@ ROUTER.register(
     messages_views.ReceiveMessagesView,
     base_name='receive_messages')
 
+ROUTER.register(
+    r'status/messages',
+    messages_views.MessagesViewStatus,
+    base_name='message_status'
+)
+
 # User
 ROUTER.register(
     r'user',
     contacts_views.GetUserInfoView,
     base_name="user_info")
+
+ROUTER.register(
+    r'contact',
+    contacts_views.ContactCardView,
+    base_name="contact_cards"
+)
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -54,4 +69,4 @@ urlpatterns += [
     # Do NOT return 200 for missing API calls.
     url(r'^(?!api/)', index_view.index, name="index"),
     # url(r'^accounts/', include('allauth.urls')),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

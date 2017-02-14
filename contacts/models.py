@@ -22,8 +22,10 @@ class Contact(models.Model):
     number = models.CharField(max_length=17, primary_key=True, unique=True)
     first_name = models.TextField(default='', blank=True, null=True)
     last_name = models.TextField(default='', blank=True, null=True)
+    email = models.EmailField(max_length=70, blank=True, null= True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    notes = models.TextField(blank=True, null=True, default='')
     contactBook = models.ForeignKey(ContactBook, on_delete=models.CASCADE, related_name='contacts')
 
     def __str__(self):

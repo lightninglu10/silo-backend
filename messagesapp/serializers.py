@@ -6,10 +6,15 @@ class UserListSerializer(serializers.ModelSerializer):
     """
     Serializes the user list
     """
-    to = ContactSerializer()
+    to = serializers.SerializerMethodField()
+
+    def get_to(self, obj):
+        contacts = obj.to
+        contacts_serialized = ContactSerializer(contacts)
+        return contacts_serialized.data
 
     class Meta:
-        fields = ('body', 'to', 'media_url', 'time_sent')
+        fields = ('body', 'to', 'media_url', 'time_sent', 'id')
         model = Message
 
 class MessagesSerializer(serializers.ModelSerializer):
@@ -17,6 +22,8 @@ class MessagesSerializer(serializers.ModelSerializer):
     Serializes each individual message
     """
 
+    to = ContactSerializer()
+
     class Meta:
-        fields = ('body', 'media_url', 'time_sent', 'me')
+        fields = '__all__'
         model = Message

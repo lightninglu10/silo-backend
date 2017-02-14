@@ -25,7 +25,7 @@ SECRET_KEY = 'lb6a$b2(%3a*ddryv68b1ijq1sa(uctc)99yt2wq@u7!&q_f_c'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['e88496a4.ngrok.io', 'localhost']
+ALLOWED_HOSTS = ['4a1e3c48.ngrok.io', 'localhost']
 
 
 # Application definition
@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Channels
+    'channels',
 
     # Webpack loader
     'webpack_loader',
@@ -200,3 +203,22 @@ WEBPACK_LOADER = {
 
 # Site ID
 SITE_ID = 1
+
+# Django Channels settings for Development
+###############################################
+# Use Different Settings for Production!!!!   #
+###############################################
+# CHANNEL_LAYERS = {
+#     "default": {
+#     "BACKEND": "asgiref.inmemory.ChannelLayer",
+#     "ROUTING": "channels_obstruction.routing.channel_routing",
+#     },
+# }
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "ROUTING": "silo.routing.channel_routing",
+    },
+}
+
