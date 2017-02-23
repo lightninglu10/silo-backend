@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 # Channels for websockets
 from channels import Group
+import json
 
 class MessageBase(models.Model):
     STATUS_CHOICES = (
@@ -14,25 +15,26 @@ class MessageBase(models.Model):
         ('U', 'undelivered'),
     )
     body = models.CharField(max_length=1600, blank=True, null=True)
+    delivery_status = models.CharField(default='Q', max_length=1, choices=STATUS_CHOICES)
     media_url = models.TextField(default=None, blank=True, null=True)
     time_sent = models.DateTimeField(auto_now_add=True)
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='%(class)s_messages')
     me = models.BooleanField(default=True)
-    status = models.CharField(default='Q', max_length=1, choices=STATUS_CHOICES)
+    
 
     class Meta:
         abstract = True
 
     def status(self, status):
         if status == 'queued':
-            self.status = 'Q'
+            self.delivery_status = 'Q'
         elif status == 'failed':
-            self.status = 'F'
-            Group('status').send({'text': {'status': 'failed', 'message': ''}})
+            self.delivery_status = 'F'
+            Group('status').send({'text': json.dumps({'status': 'failed', 'message': ''})})
         elif status == 'delivered':
-            self.status = 'D'
+            self.delivery_status = 'D'
         elif status == 'undelivered':
-            self.status = 'U'
+            self.delivery_status = 'U'
         self.save()
         return self
 

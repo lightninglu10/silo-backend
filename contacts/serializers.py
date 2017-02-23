@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class ContactSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('number', 'first_name', 'last_name', 'number', 'notes', 'email')
+        fields = '__all__'
         model = Contact
 
 class UserSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_contacts(self, obj):
         # TODO: manage contact book
-        contacts = obj.contactBook.first().contacts.all()
+        contacts = obj.contactBook.first().contacts.filter(saved=True)
         contacts_serialized = ContactSerializer(contacts, many=True)
         return contacts_serialized.data
 

@@ -14,7 +14,7 @@ from django.contrib.auth import authenticate, login, logout
 from django import forms
 
 # Serializers
-from .serializers import UserSerializer
+from .serializers import UserSerializer, ContactSerializer
 
 import random
 
@@ -30,6 +30,7 @@ class ContactForm(forms.Form):
     first_name = forms.CharField(required=False)
     last_name = forms.CharField(required=False)
     number = forms.CharField(required=True)
+    notes = forms.CharField(required=False)
 
 class GetUserInfoView(viewsets.GenericViewSet):
     """
@@ -48,10 +49,21 @@ class GetUserInfoView(viewsets.GenericViewSet):
         else:
             return Response({'error': 'User is not authenticated', 'status': 403})
 
-class ContactCardView(viewsets.GenericViewSet):
+class ContactCardView(viewsets.GenericViewSet, mixins.ListModelMixin):
     """
     View to get specific contacts, modify contacts, and add contacts
     """
+
+    serializer_class = ContactSerializer
+
+    def retrieve(self, request, pk=None):
+        try:
+            contact = Contact.objects.get(number=pk)
+        except Contact.DoesNotExist:
+            return Response({'error': 'Contact does not exist', 'status': 400})
+
+        contact_serializer = ContactSerializer(contact)
+        return Response({'contact': contact_serializer.data})
 
     def update(self, request, pk=None):
         """
@@ -61,11 +73,32 @@ class ContactCardView(viewsets.GenericViewSet):
         form = ContactForm(request.data)
 
         if form.is_valid():
-            contact = Contact.objects.get(number=form.cleaned_data['number'])
-            contact.email = form.cleaned_data['email']
-            contact.first_name = form.cleaned_data['first_name']
-            contact.last_name = form.cleaned_data['last_name']
-            contact.save()
-            return Response({'success': 'Contact updated', 'status': 200})
+            try:
+                contact = Contact.objects.get(number=form.cleaned_data['number'])
 
-        return Response({'error': form.errors}, status=200)
+                contact.email = form.cleaned_data['email']
+                contact.first_name = form.cleaned_data['first_name']
+                contact.last_name = form.cleaned_data['last_name']
+                contact.notes = form.cleaned_data['notes']
+                contact.saved = True
+                contact.save()
+            except Contact.DoesNotExist:
+                if not request.user.is_authenticated():
+                    return Response({'error': 'User is not authenticated', 'status': 403}, status=403)
+
+                # TODO: Handle multiple contact books
+                contact_book = request.user.contactBook.first()
+
+                contact = Contact.objects.create(
+                    contactBook=contact_book,
+                    number=form.cleaned_data['number'],
+                    email=form.cleaned_data['email'],
+                    first_name=form.cleaned_data['first_name'],
+                    last_name=form.cleaned_data['last_name'],
+                    notes=form.cleaned_data['notes'],
+                    saved=True
+                )
+            contact_serializer = ContactSerializer(contact)
+            return Response({'contact': contact_serializer.data, 'status': 200})
+
+        return Response({'error': form.errors, 'status': 400}, status=200)

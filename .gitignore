@@ -83,6 +83,9 @@ venv/
 ENV/
 .silo/
 
+# Static files
+static/
+
 # Webpack-stats
 webpack-stats.json
 

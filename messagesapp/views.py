@@ -143,12 +143,11 @@ class MessagesView(viewsets.GenericViewSet):
         form = MessageForm(request.data)
 
         if form.is_valid():
-            # TODO: Get real users here not hard coded
 
             if request.user.is_authenticated():
                 user = request.user
             else:
-                user = User.objects.get(username='patricklu')
+                return Response({'error': 'User not logged in'}, status=403)
 
             contacts = []
             twilio_responses = []
@@ -182,7 +181,7 @@ class MessagesView(viewsets.GenericViewSet):
                         # TODO: make the status callback an environment variable
                         response = client.messages.create(
                                         to=number,
-                                        status_callback='http://4a1e3c48.ngrok.io/api/status/messages/',
+                                        status_callback='http://398e6cd2.ngrok.io/api/status/messages/',
                                         messaging_service_sid=SILO_MESSAGING_ID,
                                         body=form.cleaned_data['body'])
                     # TODO: get the exceptions done properly
@@ -198,7 +197,6 @@ class MessagesView(viewsets.GenericViewSet):
                     body=form.cleaned_data['body'],
                     media_url=form.cleaned_data['media_url'],
                     twilio_sid=response.sid,
-                    status='Q'
                 )
 
             new_message_serialized = MessagesSerializer(new_message)
@@ -215,8 +213,7 @@ class MessagesView(viewsets.GenericViewSet):
         if request.user.is_authenticated():
             user = request.user
         else:
-            # TODO: handle unauthenticated user
-            user = User.objects.get(username='patricklu')
+            return Response({'error': 'User not logged in'}, status=403)
 
         contact_book = user.contactBook.all().first()
         userList = []
@@ -243,7 +240,11 @@ class MessagesView(viewsets.GenericViewSet):
 
         # TODO: only get a range of messages (message 1-10), and then load them as we go higher, not all
 
-        user = User.objects.get(username='patricklu')
+        if request.user.is_authenticated():
+            user = request.user
+        else:
+            return Response({'error': 'User not logged in'}, status=403)
+
         contact_book = user.contactBook.all().first()
         numbers = pk.split(',')
         contacts = []

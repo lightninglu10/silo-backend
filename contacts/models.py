@@ -19,7 +19,8 @@ class Contact(models.Model):
     """
     Model for the contacts in the contact book
     """
-    number = models.CharField(max_length=17, primary_key=True, unique=True)
+    number = models.CharField(max_length=17, unique=True)
+    saved = models.BooleanField(default=False)
     first_name = models.TextField(default='', blank=True, null=True)
     last_name = models.TextField(default='', blank=True, null=True)
     email = models.EmailField(max_length=70, blank=True, null= True)

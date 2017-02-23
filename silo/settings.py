@@ -14,6 +14,7 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # The root of the front end + backend
 print("Set BASE_DIR={}".format(BASE_DIR))
 
 # Quick-start development settings - unsuitable for production
@@ -25,7 +26,7 @@ SECRET_KEY = 'lb6a$b2(%3a*ddryv68b1ijq1sa(uctc)99yt2wq@u7!&q_f_c'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['4a1e3c48.ngrok.io', 'localhost']
+ALLOWED_HOSTS = ['.ngrok.io', 'localhost']
 
 
 # Application definition
@@ -134,7 +135,7 @@ AUTHENTICATION_BACKENDS = (
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DB_NAME = os.environ['RDS_DB_NAME'] if 'RDS_DB_NAME' in os.environ else 'silo'
+DB_NAME = os.environ['RDS_DB_NAME'] if 'RDS_DB_NAME' in os.environ else 'silo2'
 DB_USER = os.environ['RDS_USERNAME'] if 'RDS_USERNAME' in os.environ else 'silomanager'
 DB_PASS = os.environ['RDS_PASSWORD'] if 'RDS_PASSWORD' in os.environ else ''
 DB_HOST = os.environ['RDS_HOSTNAME'] if 'RDS_HOSTNAME' in os.environ else 'localhost'
@@ -188,9 +189,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'assets'), # We do this so that django's collectstatic copies or our bundles to the STATIC_ROOT or syncs them to whatever storage we use.
+    # os.path.join(BASE_DIR, 'assets'), # We do this so that django's collectstatic copies or our bundles to the STATIC_ROOT or syncs them to whatever storage we use.
+    os.path.join(PROJECT_ROOT, 'silo-web/client/assets'),
 )
 
 # Webpack loader

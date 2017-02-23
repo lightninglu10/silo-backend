@@ -12,13 +12,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='contact',
-            name='id',
-        ),
-        migrations.AlterField(
-            model_name='contact',
-            name='number',
-            field=models.CharField(max_length=17, primary_key=True, serialize=False, unique=True),
-        ),
+
     ]
