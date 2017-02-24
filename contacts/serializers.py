@@ -4,6 +4,13 @@ from django.contrib.auth.models import User
 
 class ContactSerializer(serializers.ModelSerializer):
 
+    name = serializers.SerializerMethodField()
+
+    def get_name(self, obj):
+        name = obj.first_name + " " + obj.last_name
+
+        return name.strip()
+
     class Meta:
         fields = '__all__'
         model = Contact
