@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 
 class ContactBook(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contactBook')
+    name = models.TextField(default='')    
 
 class UserProfile(models.Model):
     """
@@ -14,6 +15,10 @@ class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    opt_in_message = models.TextField(default='Thanks for joining our txt list! Normal carrier txt fees apply. Reply STOP to stop.')
+
+    def __str__(self):
+        return 'Name: {}'.format(self.first_name + " " + self.last_name)
 
 class Contact(models.Model):
     """

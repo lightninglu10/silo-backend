@@ -24,8 +24,13 @@ from .serializers import UserListSerializer, MessagesSerializer
 # Channels for websockets
 from channels import Group
 
+# Utils
+import phonenumbers
 import json
 from operator import itemgetter
+
+# Settings
+from silo.settings import TWILIO_STATUS_CALLBACK
 
 account_sid = "AC416bdd1fded5fa067f76ecd4381632d5"
 auth_token = "f15d3e7ae578b4ec75a15b5fa41e1b0f"
@@ -33,6 +38,13 @@ SILO_MESSAGING_ID = 'MGb015f9b8cea6900c64af4b2d5f7fb6bc'
 USA_NUMBER_LENGTH = 10
 
 client = Client(account_sid, auth_token)
+
+class OptInForm(forms.Form):
+    number = forms.CharField(required=True)
+    first_name = forms.CharField(required=False)
+    last_name = forms.CharField(required=False)
+    country = forms.CharField(default="US", required=False)
+    contact_book = forms.IntegerField()
 
 class MessageForm(forms.Form):
     body = forms.CharField(max_length=1600, strip=True, required=False)
@@ -55,6 +67,44 @@ class ReceiveMessageForm(forms.Form):
     MessageStatus = forms.CharField(required=False)
     SmsStatus = forms.CharField(required=False)
     MessageSid = forms.CharField(required=False)
+
+class OptInView(viewsets.GenericViewSet):
+    """
+    View to handle initial opt in's
+    """
+
+    permission_classes = ()
+
+    def create(self, request):
+        """
+        Callback / post after opting into the text list
+        """
+
+        form = OptInForm(request.data)
+
+        if form.is_valid():
+            number = form.cleaned_data['number']
+            country_code = form.cleaned_data['country']
+            parsed_number = phonenumbers.parse(number, country_code)
+            E164 = phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.E164)
+
+            # Contact shouldn't exist
+            try:
+                contact = Contact.objects.create(number=E164,
+                    contactBook=user.contactBook.all()[form.cleaned_data['contact_book']])
+            except:
+                return Response({'error': 'The number already exists!', 'status': 400})
+
+            try:
+                # TODO: make the status callback an environment variable
+                response = client.messages.create(
+                                to=number,
+                                status_callback=TWILIO_STATUS_CALLBACK,
+                                messaging_service_sid=SILO_MESSAGING_ID,
+                                body=request.user.profile.opt_in_message)
+            except TwilioRestException as e:
+                # TODO: get the exceptions done properly
+                return Response({'error': 'Twilio error', 'status': 400}, status=400)
 
 class MessagesViewStatus(viewsets.GenericViewSet):
     """
@@ -178,10 +228,9 @@ class MessagesView(viewsets.GenericViewSet):
                         return Response({'error': 'error'})
                 else:
                     try:
-                        # TODO: make the status callback an environment variable
                         response = client.messages.create(
                                         to=number,
-                                        status_callback='http://398e6cd2.ngrok.io/api/status/messages/',
+                                        status_callback=TWILIO_STATUS_CALLBACK,
                                         messaging_service_sid=SILO_MESSAGING_ID,
                                         body=form.cleaned_data['body'])
                     # TODO: get the exceptions done properly

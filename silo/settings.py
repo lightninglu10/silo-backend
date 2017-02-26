@@ -23,8 +23,15 @@ print("Set BASE_DIR={}".format(BASE_DIR))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'lb6a$b2(%3a*ddryv68b1ijq1sa(uctc)99yt2wq@u7!&q_f_c'
 
+APP_ENV = os.environ.get('APP_ENV') or 'development'
+PRODUCTION = APP_ENV == 'production'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+TWILIO_STATUS_CALLBACK = 'http://silo.ngrok.io/api/status/messages/'
+
+if PRODUCTION:
+    DEBUG = False
 
 ALLOWED_HOSTS = ['.ngrok.io', 'localhost']
 
