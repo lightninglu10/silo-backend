@@ -29,12 +29,10 @@ PRODUCTION = APP_ENV == 'production'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 TWILIO_STATUS_CALLBACK = 'http://silo.ngrok.io/api/status/messages/'
+ALLOWED_HOSTS = ['.ngrok.io', 'localhost']
 
 if PRODUCTION:
     DEBUG = False
-
-ALLOWED_HOSTS = ['.ngrok.io', 'localhost']
-
 
 # Application definition
 

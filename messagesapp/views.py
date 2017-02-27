@@ -43,7 +43,7 @@ class OptInForm(forms.Form):
     number = forms.CharField(required=True)
     first_name = forms.CharField(required=False)
     last_name = forms.CharField(required=False)
-    country = forms.CharField(default="US", required=False)
+    country = forms.CharField(required=False)
     contact_book = forms.IntegerField()
 
 class MessageForm(forms.Form):
@@ -81,7 +81,7 @@ class OptInView(viewsets.GenericViewSet):
         """
 
         form = OptInForm(request.data)
-
+        user = request.user
         if form.is_valid():
             number = form.cleaned_data['number']
             country_code = form.cleaned_data['country']
@@ -101,10 +101,24 @@ class OptInView(viewsets.GenericViewSet):
                                 to=number,
                                 status_callback=TWILIO_STATUS_CALLBACK,
                                 messaging_service_sid=SILO_MESSAGING_ID,
-                                body=request.user.profile.opt_in_message)
+                                body=user.profile.opt_in_message)
             except TwilioRestException as e:
                 # TODO: get the exceptions done properly
                 return Response({'error': 'Twilio error', 'status': 400}, status=400)
+
+            # TODO: get response.sid correct
+            new_message = Message.objects.create(
+                to=contact,
+                sender=user,
+                body=user.profile.opt_in_message,
+                twilio_sid=response.sid,
+            )
+
+            new_message_serialized = MessagesSerializer(new_message)
+
+            return Response({'success': 'Message sent!', 'message': new_message_serialized.data, 'status': 200})
+        
+        return Response({'error': form.errors.as_json(), 'status': 400}, status=400)
 
 class MessagesViewStatus(viewsets.GenericViewSet):
     """
