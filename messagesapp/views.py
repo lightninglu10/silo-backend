@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 # Models
 from .models import Message
-from contacts.models import Contact, UserProfile
+from contacts.models import Contact, UserProfile, Group as ContactGroup
 from django.contrib.auth.models import User
 
 # DRF
@@ -45,7 +45,8 @@ class OptInForm(forms.Form):
     last_name = forms.CharField(required=False)
     country = forms.CharField(required=False)
     contact_book = forms.IntegerField()
-    user_email = forms.CharField(required=True)
+    user_email = forms.CharField(required=False)
+    groups = SimpleArrayField(forms.CharField(strip=True), required=False)
 
 class MessageForm(forms.Form):
     body = forms.CharField(max_length=1600, strip=True, required=False)
@@ -82,7 +83,6 @@ class OptInView(viewsets.GenericViewSet):
         """
 
         form = OptInForm(request.data)
-
         if form.is_valid():
             if request.user.is_authenticated():
                 user = request.user
@@ -94,9 +94,18 @@ class OptInView(viewsets.GenericViewSet):
             parsed_number = phonenumbers.parse(number, country_code)
             E164 = phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.E164)
             contact_book = user.contactBook.all()[form.cleaned_data['contact_book']]
+
             try:
                 # Contact shouldn't already be opted in
                 contact = Contact.objects.get(number=E164, contactBook=contact_book, optin=False)
+                contact.optin = True
+
+                # add the group to the contact
+                for group in form.cleaned_data['groups']:
+                    group = ContactGroup.objects.get(name=group)
+                    contact.groups.add(group)
+
+                contact.save()
             except Contact.DoesNotExist:
                 try:
                     contact = Contact.objects.create(number=E164, contactBook=contact_book)

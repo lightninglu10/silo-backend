@@ -14,7 +14,7 @@ from django.contrib.auth import authenticate, login, logout
 from django import forms
 
 # Serializers
-from .serializers import UserSerializer, ContactSerializer
+from .serializers import UserSerializer, ContactSerializer, GroupSerializer
 
 import random
 
@@ -31,6 +31,24 @@ class ContactForm(forms.Form):
     last_name = forms.CharField(required=False)
     number = forms.CharField(required=True)
     notes = forms.CharField(required=False)
+
+class GroupsViewSet(viewsets.GenericViewSet):
+    """
+    View for groups
+    """
+
+    queryset = ()
+
+    def list(self, request):
+        """
+        Grabs all of the user's groups
+        """
+
+        user = request.user
+        all_groups = user.group.all()
+        serialized_groups = GroupSerializer(all_groups, many=True)
+
+        return Response({'groups': serialized_groups.data})
 
 class GetUserInfoView(viewsets.GenericViewSet):
     """

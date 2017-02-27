@@ -6,8 +6,14 @@ class ContactBook(models.Model):
     name = models.TextField(default='')
 
 class Group(models.Model):
+    """
+    Grouping contacts together
+    """
     name = models.CharField(max_length=200)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='group')
 
+    def __str__(self):
+        return 'Name: {}, User: {}, User Email: {}'.format(self.name, self.user.first_name + self.user.last_name, self.user.email)
 
 class UserProfile(models.Model):
     """

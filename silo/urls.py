@@ -29,9 +29,9 @@ ROUTER = SimpleRouter()
 
 # Messages
 ROUTER.register(
-    r'messages/optin',
+    r'messages/opt',
     messages_views.OptInView,
-    base_name='optin'
+    base_name='opt'
 )
 ROUTER.register(
     r'messages',
@@ -50,7 +50,7 @@ ROUTER.register(
 )
 
 
-# User
+# Contacts / User views
 ROUTER.register(
     r'user',
     contacts_views.GetUserInfoView,
@@ -60,6 +60,12 @@ ROUTER.register(
     r'contact',
     contacts_views.ContactCardView,
     base_name="contact_cards"
+)
+
+ROUTER.register(
+    r'groups',
+    contacts_views.GroupsViewSet,
+    base_name="groups"
 )
 
 
