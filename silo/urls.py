@@ -29,6 +29,11 @@ ROUTER = SimpleRouter()
 
 # Messages
 ROUTER.register(
+    r'messages/optin',
+    messages_views.OptInView,
+    base_name='optin'
+)
+ROUTER.register(
     r'messages',
     messages_views.MessagesView,
     base_name='messages'
@@ -43,6 +48,7 @@ ROUTER.register(
     messages_views.MessagesViewStatus,
     base_name='message_status'
 )
+
 
 # User
 ROUTER.register(

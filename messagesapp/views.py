@@ -45,6 +45,7 @@ class OptInForm(forms.Form):
     last_name = forms.CharField(required=False)
     country = forms.CharField(required=False)
     contact_book = forms.IntegerField()
+    user_email = forms.CharField(required=True)
 
 class MessageForm(forms.Form):
     body = forms.CharField(max_length=1600, strip=True, required=False)
@@ -81,19 +82,26 @@ class OptInView(viewsets.GenericViewSet):
         """
 
         form = OptInForm(request.data)
-        user = request.user
+
         if form.is_valid():
+            if request.user.is_authenticated():
+                user = request.user
+            else:
+                user = User.objects.get(email=form.cleaned_data['user_email'])
+
             number = form.cleaned_data['number']
             country_code = form.cleaned_data['country']
             parsed_number = phonenumbers.parse(number, country_code)
             E164 = phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.E164)
-
-            # Contact shouldn't exist
+            contact_book = user.contactBook.all()[form.cleaned_data['contact_book']]
             try:
-                contact = Contact.objects.create(number=E164,
-                    contactBook=user.contactBook.all()[form.cleaned_data['contact_book']])
-            except:
-                return Response({'error': 'The number already exists!', 'status': 400})
+                # Contact shouldn't already be opted in
+                contact = Contact.objects.get(number=E164, contactBook=contact_book, optin=False)
+            except Contact.DoesNotExist:
+                try:
+                    contact = Contact.objects.create(number=E164, contactBook=contact_book)
+                except Exception as e:
+                    return Response({'error': 'The number already exists!', 'status': 400})
 
             try:
                 # TODO: make the status callback an environment variable

@@ -3,7 +3,11 @@ from django.contrib.auth.models import User
 
 class ContactBook(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contactBook')
-    name = models.TextField(default='')    
+    name = models.TextField(default='')
+
+class Group(models.Model):
+    name = models.CharField(max_length=200)
+
 
 class UserProfile(models.Model):
     """
@@ -26,6 +30,7 @@ class Contact(models.Model):
     """
     number = models.CharField(max_length=17, unique=True)
     saved = models.BooleanField(default=False)
+    optin = models.BooleanField(default=True)
     first_name = models.TextField(default='', blank=True, null=True)
     last_name = models.TextField(default='', blank=True, null=True)
     email = models.EmailField(max_length=70, blank=True, null= True)
@@ -33,6 +38,7 @@ class Contact(models.Model):
     updated = models.DateTimeField(auto_now=True)
     notes = models.TextField(blank=True, null=True, default='')
     contactBook = models.ForeignKey(ContactBook, on_delete=models.CASCADE, related_name='contacts')
+    groups = models.ManyToManyField(Group, related_name='contacts')
 
     def __str__(self):
         return 'Number: {},\n\nFirst: {},\n\n Last: {},\n\n'.format(self.number, self.first_name, self.last_name)
