@@ -34,6 +34,7 @@ ALLOWED_HOSTS = ['.ngrok.io', 'localhost']
 CORS_ORIGIN_WHITELIST = (
     '.ngrok.io',
     'localhost:3000',
+    '.silohq.com',
 )
 CORS_ALLOW_CREDENTIALS = True
 
@@ -41,6 +42,8 @@ CORS_ALLOW_CREDENTIALS = True
 
 if PRODUCTION:
     DEBUG = False
+    ALLOWED_HOSTS += ['.elasticbeanstalk.com', '.silohq.com']
+
 
 # Application definition
 
