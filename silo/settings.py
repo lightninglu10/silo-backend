@@ -29,7 +29,15 @@ PRODUCTION = APP_ENV == 'production'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 TWILIO_STATUS_CALLBACK = 'http://silo.ngrok.io/api/status/messages/'
+
 ALLOWED_HOSTS = ['.ngrok.io', 'localhost']
+CORS_ORIGIN_WHITELIST = (
+    '.ngrok.io',
+    'localhost:3000',
+)
+CORS_ALLOW_CREDENTIALS = True
+
+# CORS_ORIGIN_ALLOW_ALL = True
 
 if PRODUCTION:
     DEBUG = False
@@ -43,6 +51,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Cors
+    'corsheaders',
 
     # Channels
     'channels',
@@ -78,6 +89,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
