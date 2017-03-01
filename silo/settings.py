@@ -30,7 +30,7 @@ PRODUCTION = APP_ENV == 'production'
 DEBUG = True
 TWILIO_STATUS_CALLBACK = 'http://silo.ngrok.io/api/status/messages/'
 
-ALLOWED_HOSTS = ['.ngrok.io', 'localhost']
+ALLOWED_HOSTS = ['.ngrok.io', 'localhost', '.elasticbeanstalk.com']
 CORS_ORIGIN_WHITELIST = (
     '.ngrok.io',
     'localhost:3000',
@@ -42,7 +42,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 if PRODUCTION:
     DEBUG = False
-    ALLOWED_HOSTS += ['.elasticbeanstalk.com', '.silohq.com']
+    ALLOWED_HOSTS += ['.silohq.com']
 
 
 # Application definition
