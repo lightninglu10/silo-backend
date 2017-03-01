@@ -25,6 +25,7 @@ class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    website = models.CharField(max_length=200, blank=True, null=True)
     opt_in_message = models.TextField(default='Thanks for joining our txt list! Normal carrier txt fees apply. Reply STOP to stop.')
 
     def __str__(self):
