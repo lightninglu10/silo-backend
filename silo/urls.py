@@ -79,6 +79,6 @@ urlpatterns = [
 
 urlpatterns += [
     # Do NOT return 200 for missing API calls.
-    url(r'^(?!api/)', index_view.index, name="index"),
+    url(r'^(?!api/)', admin.site.urls, name="index"),
     # url(r'^accounts/', include('allauth.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
