@@ -41,9 +41,13 @@ CORS_ALLOW_CREDENTIALS = True
 
 # CORS_ORIGIN_ALLOW_ALL = True
 
+# Dev production or production environment setup
 if PRODUCTION or DEVPRODUCTION:
-    DEBUG = False
     ALLOWED_HOSTS += ['.silohq.com']
+    TWILIO_STATUS_CALLBACK = 'https://www.silohq.com/api/status/messages/'
+
+if PRODUCTION:
+    DEBUG = False
 
 
 # Application definition
