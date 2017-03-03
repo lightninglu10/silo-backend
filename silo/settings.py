@@ -211,10 +211,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-STATICFILES_DIRS = (
-    # os.path.join(BASE_DIR, 'assets'), # We do this so that django's collectstatic copies or our bundles to the STATIC_ROOT or syncs them to whatever storage we use.
-    os.path.join(PROJECT_ROOT, 'silo-web/client/assets'),
-)
+# STATICFILES_DIRS = (
+#     # os.path.join(BASE_DIR, 'assets'), # We do this so that django's collectstatic copies or our bundles to the STATIC_ROOT or syncs them to whatever storage we use.
+#     os.path.join(PROJECT_ROOT, 'silo-web/client/assets'),
+# )
 
 # Webpack loader
 WEBPACK_LOADER = {
