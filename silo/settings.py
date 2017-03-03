@@ -25,6 +25,7 @@ SECRET_KEY = 'lb6a$b2(%3a*ddryv68b1ijq1sa(uctc)99yt2wq@u7!&q_f_c'
 
 APP_ENV = os.environ.get('APP_ENV') or 'development'
 PRODUCTION = APP_ENV == 'production'
+DEVPRODUCTION = APP_ENV == 'devproduction'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -40,7 +41,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 # CORS_ORIGIN_ALLOW_ALL = True
 
-if PRODUCTION:
+if PRODUCTION or DEVPRODUCTION:
     DEBUG = False
     ALLOWED_HOSTS += ['.silohq.com']
 
