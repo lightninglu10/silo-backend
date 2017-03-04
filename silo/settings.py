@@ -36,6 +36,7 @@ CORS_ORIGIN_WHITELIST = (
     '.ngrok.io',
     'localhost:3000',
     '.silohq.com',
+    '.elasticbeanstalk.com',
 )
 CORS_ALLOW_CREDENTIALS = True
 
