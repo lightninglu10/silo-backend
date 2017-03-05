@@ -33,10 +33,10 @@ TWILIO_STATUS_CALLBACK = 'http://silo.ngrok.io/api/status/messages/'
 
 ALLOWED_HOSTS = ['.ngrok.io', 'localhost', '.elasticbeanstalk.com']
 CORS_ORIGIN_WHITELIST = (
-    'ngrok.io',
+    '*.ngrok.io',
     'localhost:3000',
-    'silohq.com',
-    'elasticbeanstalk.com',
+    '*.silohq.com',
+    '*.elasticbeanstalk.com',
 )
 CORS_ALLOW_CREDENTIALS = True
 
