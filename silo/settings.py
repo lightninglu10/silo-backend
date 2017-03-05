@@ -37,6 +37,7 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:3000',
     '*.silohq.com',
     '*.elasticbeanstalk.com',
+    'silo-web-dev-test.us-west-1.elasticbeanstalk.com',
 )
 CORS_ALLOW_CREDENTIALS = True
 
