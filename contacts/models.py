@@ -11,6 +11,7 @@ class Group(models.Model):
     """
     name = models.CharField(max_length=200)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='group')
+    access = models.ManyToManyField(User, related_name='group_access')
 
     def __str__(self):
         return 'Name: {}, User: {}, User Email: {}'.format(self.name, self.user.first_name + self.user.last_name, self.user.email)

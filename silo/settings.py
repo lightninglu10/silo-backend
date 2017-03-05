@@ -163,7 +163,7 @@ AUTHENTICATION_BACKENDS = (
 
 DB_NAME = os.environ['RDS_DB_NAME'] if 'RDS_DB_NAME' in os.environ else 'silo2'
 DB_USER = os.environ['RDS_USERNAME'] if 'RDS_USERNAME' in os.environ else 'silomanager'
-DB_PASS = os.environ['RDS_PASSWORD'] if 'RDS_PASSWORD' in os.environ else ''
+DB_PASS = os.environ['RDS_PASSWORD'] if 'RDS_PASSWORD' in os.environ else 'silomanagerpassword'
 DB_HOST = os.environ['RDS_HOSTNAME'] if 'RDS_HOSTNAME' in os.environ else 'localhost'
 DB_PORT = os.environ.get('RDS_PORT') if 'RDS_PORT' in os.environ else 5432
 
