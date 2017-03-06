@@ -66,8 +66,8 @@ if PRODUCTION or DEVPRODUCTION:
     }
 
 
-# if PRODUCTION:
-#     DEBUG = False
+if PRODUCTION:
+    DEBUG = False
 
 
 # Application definition
