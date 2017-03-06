@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 def index(request):
     """
@@ -8,6 +9,7 @@ def index(request):
 
     return render(request, 'index.tpl.html')
 
+@api_view(['GET'])
 def healthcheck(request):
     """
     Health check for elastic beanstalk
