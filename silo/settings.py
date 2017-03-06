@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
-import logging
+# import logging
 
-LOGGER = logging.getLogger(__name__)
+# LOGGER = logging.getLogger(__name__)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,7 +31,7 @@ PRODUCTION = APP_ENV == 'production'
 DEVPRODUCTION = APP_ENV == 'devproduction'
 ELASTIC_BEANSTALK = (APP_ENV in ['production','staging'])
 
-LOGGER.info("Initializing app with APP_ENV={}".format(APP_ENV))
+# LOGGER.info("Initializing app with APP_ENV={}".format(APP_ENV))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -203,59 +203,59 @@ DATABASES = {
 
 # Logging
 
-if ELASTIC_BEANSTALK:
-    handlers = ['file']
-    log_dir = '/opt/python/log'
-# elif CI:
+# if ELASTIC_BEANSTALK:
+#     handlers = ['file']
+#     log_dir = '/opt/python/log'
+# # elif CI:
+# #     handlers = ['console']
+# #     log_dir = '.'
+# else:
 #     handlers = ['console']
-#     log_dir = '.'
-else:
-    handlers = ['console']
-    log_dir = 'var/log/silo'
+#     log_dir = 'var/log/silo'
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt' : "%Y-%m-%d %H:%M:%S"
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'level': 'DEBUG'
-        },
-        'file': {
-            'class': 'logging.handlers.WatchedFileHandler',
-            'level': 'DEBUG',
-            'filename': '{}/app.log'.format(log_dir),
-            'formatter': 'verbose',
-        }
-    },
-    'loggers': {
-        'silo': {
-            'handlers': handlers,
-            'level': 'INFO',
-            'propagate': True
-        },
-        'django': {
-            'handlers': handlers,
-            'level': 'INFO',
-            'propagate': True
-        },
-        # Uncomment for detailed query analysis, but not on production!
-        # 'django.db': {
-            # 'handlers': handlers,
-            # 'level': 'DEBUG',
-            # 'propagate': False
-        # }
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'verbose': {
+#             'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+#             'datefmt' : "%Y-%m-%d %H:%M:%S"
+#         },
+#         'simple': {
+#             'format': '%(levelname)s %(message)s'
+#         },
+#     },
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#             'level': 'DEBUG'
+#         },
+#         'file': {
+#             'class': 'logging.handlers.WatchedFileHandler',
+#             'level': 'DEBUG',
+#             'filename': '{}/app.log'.format(log_dir),
+#             'formatter': 'verbose',
+#         }
+#     },
+#     'loggers': {
+#         'silo': {
+#             'handlers': handlers,
+#             'level': 'INFO',
+#             'propagate': True
+#         },
+#         'django': {
+#             'handlers': handlers,
+#             'level': 'INFO',
+#             'propagate': True
+#         },
+#         # Uncomment for detailed query analysis, but not on production!
+#         # 'django.db': {
+#             # 'handlers': handlers,
+#             # 'level': 'DEBUG',
+#             # 'propagate': False
+#         # }
+#     },
+# }
 
 
 # Password validation
