@@ -54,6 +54,7 @@ CHANNEL_LAYERS = {
 
 # Dev production or production environment setup
 if PRODUCTION or DEVPRODUCTION:
+    print('~~~~~~~~~~~~~~~~~~~~~~~~' + APP_ENV + '~~~~~~~~~~~~~~~~~~~~~~~~')
     ALLOWED_HOSTS += ['.silohq.com']
     TWILIO_STATUS_CALLBACK = 'https://www.silohq.com/api/status/messages/'
 
