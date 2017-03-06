@@ -49,7 +49,6 @@ ROUTER.register(
     base_name='message_status'
 )
 
-
 # Contacts / User views
 ROUTER.register(
     r'user',
@@ -68,10 +67,10 @@ ROUTER.register(
     base_name="groups"
 )
 
-
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/auth/', include('rest_auth.urls')),
+    url(r'^api/health/', index_view.healthcheck, name="health"),
     url(r'^api/auth/registration/', include('rest_auth.registration.urls')),
     url(r'^api/', include(ROUTER.urls, namespace='api')),
     # url(r'^rest-auth/facebook/$', FacebookLogin.as_view(), name='fb_login')

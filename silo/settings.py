@@ -41,12 +41,30 @@ CORS_ORIGIN_WHITELIST = (
 )
 CORS_ALLOW_CREDENTIALS = True
 
-# CORS_ORIGIN_ALLOW_ALL = True
+# Django Channels settings for Development
+###############################################
+# Use Different Settings for Production!!!!   #
+###############################################
+CHANNEL_LAYERS = {
+    "default": {
+    "BACKEND": "asgiref.inmemory.ChannelLayer",
+    "ROUTING": "silo.routing.channel_routing",
+    },
+}
 
 # Dev production or production environment setup
 if PRODUCTION or DEVPRODUCTION:
     ALLOWED_HOSTS += ['.silohq.com']
     TWILIO_STATUS_CALLBACK = 'https://www.silohq.com/api/status/messages/'
+
+    # Django Channels settings for Production
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "asgi_redis.RedisChannelLayer",
+            "ROUTING": "silo.routing.channel_routing",
+        },
+    }
+
 
 if PRODUCTION:
     DEBUG = False
@@ -232,22 +250,3 @@ WEBPACK_LOADER = {
 
 # Site ID
 SITE_ID = 1
-
-# Django Channels settings for Development
-###############################################
-# Use Different Settings for Production!!!!   #
-###############################################
-# CHANNEL_LAYERS = {
-#     "default": {
-#     "BACKEND": "asgiref.inmemory.ChannelLayer",
-#     "ROUTING": "channels_obstruction.routing.channel_routing",
-#     },
-# }
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "asgi_redis.RedisChannelLayer",
-        "ROUTING": "silo.routing.channel_routing",
-    },
-}
-
