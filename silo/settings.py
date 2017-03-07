@@ -41,10 +41,13 @@ ALLOWED_HOSTS = ['.ngrok.io', 'localhost', '.elasticbeanstalk.com']
 CORS_ORIGIN_WHITELIST = (
     'silo.ngrok.io',
     'localhost:3000',
-    'silo-web-dev-test.us-west-1.elasticbeanstalk.com',
-    'dashboard.silohq.com',
-    'devdashboard.silohq.com',
 )
+
+CORS_ORIGIN_REGEX_WHITELIST = (
+    r'^(https?://)?(\w+\.)?silohq\.com$',
+    r'^*.elasticbeanstalk\.com$',
+)
+
 CORS_ALLOW_CREDENTIALS = True
 
 # Django Channels settings for Development
