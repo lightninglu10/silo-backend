@@ -36,7 +36,7 @@ class Contact(models.Model):
     """
     Model for the contacts in the contact book
     """
-    number = models.CharField(max_length=17, unique=True)
+    number = models.CharField(max_length=17)
     saved = models.BooleanField(default=False)
     optin = models.BooleanField(default=True)
     first_name = models.TextField(default='', blank=True, null=True)
