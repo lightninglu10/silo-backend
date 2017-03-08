@@ -25,4 +25,4 @@ def generateCSRF(request):
     Endpoint to generate CSRF token
     """
     rotate_token(request)
-    return Response({'csrf': request.META['CSRF_COOKIE']})
+    return Response({'csrf': request.META['CSRF_COOKIE'], 'status': 200})
