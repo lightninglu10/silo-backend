@@ -69,6 +69,7 @@ ROUTER.register(
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^api/csrf/', index_view.generateCSRF, name='csrf'),
     url(r'^api/auth/', include('rest_auth.urls')),
     url(r'^api/health/', index_view.healthcheck, name="health"),
     url(r'^api/auth/registration/', include('rest_auth.registration.urls')),
