@@ -62,7 +62,7 @@ class GetUserInfoView(viewsets.GenericViewSet):
 
         if request.user.is_authenticated():
             user = request.user
-            user_serialized = UserSerializer(user)
+            user_serialized = UserSerializer(user.profile)
             return Response(user_serialized.data)
         else:
             return Response({'error': 'User is not authenticated', 'status': 403})

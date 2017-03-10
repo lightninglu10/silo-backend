@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Contact, Group
+from .models import Contact, Group, UserProfile
 from django.contrib.auth.models import User
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -31,10 +31,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_contacts(self, obj):
         # TODO: manage contact book
-        contacts = obj.contactBook.first().contacts.filter(saved=True)
+        contacts = obj.user.contactBook.first().contacts.filter(saved=True)
         contacts_serialized = ContactSerializer(contacts, many=True)
         return contacts_serialized.data
 
     class Meta:
-        fields = ('first_name', 'last_name', 'email', 'contacts', 'status')
-        model = User
+        fields = '__all__'
+        model = UserProfile
