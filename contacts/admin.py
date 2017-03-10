@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Contact, ContactBook, Group
+from .models import Contact, ContactBook, Group, UserProfile
 
 class ContactAdmin(admin.ModelAdmin):
     search_fields=['first_name', 'last_name', 'number']
