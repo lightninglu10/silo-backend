@@ -7,3 +7,4 @@ class ContactAdmin(admin.ModelAdmin):
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(ContactBook)
 admin.site.register(Group)
+admin.site.register(UserProfile)
